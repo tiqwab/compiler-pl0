@@ -40,23 +40,27 @@ def convert_to_asl(arg_elems):
     while len(elems) > 0:
         elem = elems.pop(0)
         if is_num(elem):
-            v = NumExpr(int(elem))
-            expr_stack.append(v)
+            num_expr(elem, expr_stack)
         elif is_op_expr(elem):
-            v = op_expr(elem, elems, expr_stack)
-            expr_stack.append(v)
+            op_expr(elem, elems, expr_stack)
+        elif elem == ')':
+            break
     return expr_stack.pop()
+
+def num_expr(elem, stack):
+    v = NumExpr(int(elem))
+    stack.append(v)
 
 def op_expr(elem, elems, stack):
     partial_asl(elems, stack)
     a = stack.pop()
     b = stack.pop()
-    return TwoOpExpr(operator(elem), b, a)
+    v = TwoOpExpr(operator(elem), b, a)
+    stack.append(v)
 
 def partial_asl(elems, stack):
     elem = elems.pop(0)
-    v = NumExpr(int(elem))
-    stack.append(v)
+    num_expr(elem, stack)
 
 def is_num(v):
     # FIXME: accept value larger than 9
