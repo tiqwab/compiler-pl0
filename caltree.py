@@ -37,30 +37,37 @@ def convert_to_asl(arg_elems):
 
     elems = list(arg_elems)
     expr_stack = []
+
+    # while len(elems) > 0:
+    #     expr(elems, expr_stack)
+    expr(elems, expr_stack)
+    return expr_stack.pop()
+
+def expr(elems, stack):
     while len(elems) > 0:
         elem = elems.pop(0)
+
         if is_num(elem):
-            num_expr(elem, expr_stack)
+            num_expr(elem, stack)
         elif is_op_expr(elem):
-            op_expr(elem, elems, expr_stack)
+            op_expr(elem, elems, stack)
+        elif elem == '(':
+            expr(elems, stack)
         elif elem == ')':
             break
-    return expr_stack.pop()
+        else:
+            raise RuntimeError("unexpected eof")
 
 def num_expr(elem, stack):
     v = NumExpr(int(elem))
     stack.append(v)
 
 def op_expr(elem, elems, stack):
-    partial_asl(elems, stack)
+    expr(elems, stack)
     a = stack.pop()
     b = stack.pop()
     v = TwoOpExpr(operator(elem), b, a)
     stack.append(v)
-
-def partial_asl(elems, stack):
-    elem = elems.pop(0)
-    num_expr(elem, stack)
 
 def is_num(v):
     # FIXME: accept value larger than 9
@@ -104,3 +111,7 @@ if __name__ == '__main__':
     input1 = '1 + 2 + 3 - 4'
     asl = convert_to_asl(input1.split(' '))
     print(input1, '=', asl.evaluate())
+
+    input2 = '1 + ( 2 + 3 ) - 4'
+    asl = convert_to_asl(input2.split(' '))
+    print(input2, '=', asl.evaluate())
