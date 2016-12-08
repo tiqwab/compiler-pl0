@@ -38,8 +38,6 @@ def convert_to_asl(arg_elems):
     elems = list(arg_elems)
     expr_stack = []
 
-    # while len(elems) > 0:
-    #     expr(elems, expr_stack)
     expr(elems, expr_stack)
     return expr_stack.pop()
 
@@ -51,6 +49,8 @@ def expr(elems, stack):
             num_expr(elem, stack)
         elif is_op_expr(elem):
             op_expr(elem, elems, stack)
+        elif is_op_term(elem):
+            op_term(elem, elems, stack)
         elif elem == '(':
             expr(elems, stack)
         elif elem == ')':
@@ -58,8 +58,22 @@ def expr(elems, stack):
         else:
             raise RuntimeError("unexpected eof")
 
+def factor(elems, stack):
+    elem = elems.pop(0)
+    if is_num(elem):
+        num_expr(elem, stack)
+    elif elem == '(':
+        expr(elems, stack)
+
 def num_expr(elem, stack):
     v = NumExpr(int(elem))
+    stack.append(v)
+
+def op_term(elem, elems, stack):
+    factor(elems, stack)
+    a = stack.pop()
+    b = stack.pop()
+    v = TwoOpExpr(operator(elem), b, a)
     stack.append(v)
 
 def op_expr(elem, elems, stack):
@@ -75,6 +89,9 @@ def is_num(v):
 
 def is_op_expr(v):
     return v in ['+', '-']
+
+def is_op_term(v):
+    return v in ['*', '/']
 
 '''
 Functions for basic calculation
@@ -115,3 +132,15 @@ if __name__ == '__main__':
     input2 = '1 + ( 2 + 3 ) - 4'
     asl = convert_to_asl(input2.split(' '))
     print(input2, '=', asl.evaluate())
+
+    input3 = '2 * 5 + 3'
+    asl = convert_to_asl(input3.split(' '))
+    print(input3, '=', asl.evaluate())
+
+    input3 = '2 + 5 * 3'
+    asl = convert_to_asl(input3.split(' '))
+    print(input3, '=', asl.evaluate())
+
+    input3 = '( 2 + 5 * 3 ) * ( 1 + 4 - 2 ) + 8'
+    asl = convert_to_asl(input3.split(' '))
+    print(input3, '=', asl.evaluate())
