@@ -161,8 +161,12 @@ class SourceReader:
             else:
                 token = Token(KeyToken.Id, ident) 
         elif kind == KeyEtc.Digit:
-            token = Token(kind, self.ch)
+            num = int(self.ch)
             self.ch = self.next_char()
+            while KeyTable.to_kind(self.ch) == KeyEtc.Digit:
+                num = num * 10 + int(self.ch)
+                self.ch = self.next_char()
+            token = Token(KeyToken.Num, num)
         elif kind == KeyEtc.Colon:
             token = Token(kind, self.ch)
             self.ch = self.next_char()
