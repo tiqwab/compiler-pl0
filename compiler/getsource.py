@@ -178,12 +178,25 @@ class SourceReader:
                 self.ch = self.next_char()
             else:
                 token = Token(KeyToken.Nul)
+        # parse '<', '<=', or '<>'
         elif kind == KeySym.Lss:
-            token = Token(kind, self.ch)
             self.ch = self.next_char()
+            if self.ch == "=":
+                token = Token(KeySym.LssEq)
+                self.ch = self.next_char()
+            elif self.ch == ">":
+                token = Token(KeySym.NotEq)
+                self.ch = self.next_char()
+            else:
+                token = Token(KeySym.Lss)
+        # parse '>' or '>='
         elif kind == KeySym.Gtr:
-            token = Token(kind, self.ch)
             self.ch = self.next_char()
+            if self.ch == "=":
+                token = Token(KeySym.GtrEq)
+                self.ch = self.next_char()
+            else:
+                token = Token(KeySym.Gtr)
         else:
             token = Token(kind, self.ch)
             self.ch = self.next_char()
