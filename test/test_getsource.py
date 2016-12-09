@@ -21,7 +21,7 @@ class TestGetSource(unittest.TestCase):
         finally:
             sut.close()
 
-        self.assertEqual(''.join(result), "onetwothree four")
+        self.assertEqual(''.join(result), "one\ntwo\nthree four\n")
 
     def test_next_token(self):
         sut = SourceReader('test/original2.pl')
@@ -30,7 +30,7 @@ class TestGetSource(unittest.TestCase):
             while True:
                 token = sut.next_token()
                 print(token)
-                if token.kind == KeyEtc.Others:
+                if token.kind == KeyEtc.Others and token.value == "":
                     break
         finally:
             sut.close()

@@ -57,11 +57,22 @@ class KeyTable:
         return token in [x.value for x in KeyWd.__members__.values()]
 
     @classmethod
+    def to_keywd(self, token):
+        for x in KeyWd:
+            if x.value == token:
+                return x
+        return None
+
+    @classmethod
     def is_keysym(self, token):
         return token in [x.value for x in KeySym.__members__.values()]
 
     @classmethod
     def to_kind(self, chara):
+        # FIXME
+        if chara == "":
+            return KeyEtc.Others
+
         if chara in string.digits:
             return KeyEtc.Digit
         elif chara in string.ascii_letters:
@@ -105,10 +116,10 @@ class Token:
         self.value = value
 
     def __str__(self):
-        return "Token {kind=%s, value=%s}" % (self.kind, self.value)
+        return "Token {kind=%s, value=%s}" % (self.kind, repr(self.value))
 
     def __repr__(self):
-        return "Token {kind=%s, value=%s}" % (self.kind, self.value)
+        return "Token {kind=%s, value=%s}" % (self.kind, repr(self.value))
 
 class SourceReader:
     def __init__(self, input_file):
@@ -119,7 +130,7 @@ class SourceReader:
 
     def next_char(self):
         if self.line == None:
-            self.line = self.input_file.readline().strip()
+            self.line = self.input_file.readline()
             if self.line == "":
                 self.line = None
                 return ""
@@ -132,15 +143,23 @@ class SourceReader:
         return c
 
     def next_token(self):
+        # first reading or spaces
         while self.ch == None or KeyTable.is_space(self.ch):
             self.ch = self.next_char()
-        if self.ch == "":
-            return Token(KeyEtc.Others)
 
         kind = KeyTable.to_kind(self.ch)
         if kind == KeyEtc.Letter:
-            token = Token(kind, self.ch)
+            ident = self.ch
             self.ch = self.next_char()
+            while KeyTable.to_kind(self.ch) in [KeyEtc.Letter, KeyEtc.Digit]:
+                ident += self.ch
+                self.ch = self.next_char()
+            # when ident is keywd
+            if KeyTable.is_keywd(ident):
+                token = Token(KeyTable.to_keywd(ident))
+            # when ident is not keywd, such as name of variables
+            else:
+                token = Token(KeyToken.Id, ident) 
         elif kind == KeyEtc.Digit:
             token = Token(kind, self.ch)
             self.ch = self.next_char()
@@ -154,7 +173,7 @@ class SourceReader:
             token = Token(kind, self.ch)
             self.ch = self.next_char()
         else:
-            token = Token(kind)
+            token = Token(kind, self.ch)
             self.ch = self.next_char()
         return token
 
