@@ -1,4 +1,40 @@
 '''
+Functions for basic calculation
+'''
+
+plus  = lambda x, y: x + y
+minus = lambda x, y: x - y
+mul   = lambda x, y: x * y
+div   = lambda x, y: x / y
+
+def operator(op):
+    '''
+    Generate lambda judged by a `op` symbol
+    '''
+    if op == '+':
+        return plus
+    elif op == '-':
+        return minus
+    elif op == '*':
+        return mul
+    elif op == '/':
+        return div
+    else:
+        raise RuntimeError('illegal operator: ' + op)
+
+def op_to_name(func):
+    if func == plus:
+        return '+'
+    elif func == minus:
+        return '-'
+    elif func == mul:
+        return '*'
+    elif func == div:
+        return '/'
+    else:
+        raise RuntimeError("illegal function")
+
+'''
 Classes to construct the abstract syntax tree of basic math expression such as '(3 + 5) * 10'
 '''
 
@@ -17,15 +53,27 @@ class NumExpr(Expr):
     def evaluate(self):
         return self.val
 
+    def __str__(self):
+        return "NumExpr {val=%s}" % (str(self.val))
+
+    def __repr__(self):
+        return "NumExpr {val=%s}" % (repr(self.val))
+
 class TwoOpExpr(Expr):
-    def __init__(self, op, a, b):
+    def __init__(self, op, left, right):
         super().__init__()
         self.op = op
-        self.a = a
-        self.b = b
+        self.left = left
+        self.right = right
 
     def evaluate(self):
-        return self.op(self.a.evaluate(), self.b.evaluate())
+        return self.op(self.left.evaluate(), self.right.evaluate())
+
+    def __str__(self):
+        return "TwoOpExpr {op=%s, left=%s, right=%s}" % (str(op_to_name(self.op)), str(self.left), str(self.right))
+
+    def __repr__(self):
+        return "TwoOpExpr {op=%s, left=%s, right=%s}" % (repr(op_to_name(self.op)), repr(self.left), repr(self.right))
 
 '''
 Construct the abstract syntax tree
@@ -94,30 +142,6 @@ def is_op_term(v):
     return v in ['*', '/']
 
 '''
-Functions for basic calculation
-'''
-
-plus  = lambda x, y: x + y
-minus = lambda x, y: x - y
-mul   = lambda x, y: x * y
-div   = lambda x, y: x / y
-
-def operator(op):
-    '''
-    Generate lambda judged by a `op` symbol
-    '''
-    if op == '+':
-        return plus
-    elif op == '-':
-        return minus
-    elif op == '*':
-        return mul
-    elif op == '/':
-        return div
-    else:
-        raise RuntimeError('illegal operator: ' + op)
-
-'''
 main program
 '''
 
@@ -143,4 +167,5 @@ if __name__ == '__main__':
 
     input3 = '( 2 + 5 * 3 ) * ( 1 + 4 - 2 ) + 8'
     asl = convert_to_asl(input3.split(' '))
+    print(asl)
     print(input3, '=', asl.evaluate())
