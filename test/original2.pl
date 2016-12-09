@@ -6,5 +6,6 @@ three four4
 -
 >
 :
+hoge := 555
 <
 begin end

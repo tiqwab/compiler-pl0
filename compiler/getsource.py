@@ -148,6 +148,8 @@ class SourceReader:
             self.ch = self.next_char()
 
         kind = KeyTable.to_kind(self.ch)
+
+        # parse letters
         if kind == KeyEtc.Letter:
             ident = self.ch
             self.ch = self.next_char()
@@ -159,7 +161,8 @@ class SourceReader:
                 token = Token(KeyTable.to_keywd(ident))
             # when ident is not keywd, such as name of variables
             else:
-                token = Token(KeyToken.Id, ident) 
+                token = Token(KeyToken.Id, ident)
+        # parse number
         elif kind == KeyEtc.Digit:
             num = int(self.ch)
             self.ch = self.next_char()
@@ -167,9 +170,14 @@ class SourceReader:
                 num = num * 10 + int(self.ch)
                 self.ch = self.next_char()
             token = Token(KeyToken.Num, num)
+        # parse assignment
         elif kind == KeyEtc.Colon:
-            token = Token(kind, self.ch)
             self.ch = self.next_char()
+            if self.ch == "=":
+                token = Token(KeySym.Assign)
+                self.ch = self.next_char()
+            else:
+                token = Token(KeyToken.Nul)
         elif kind == KeySym.Lss:
             token = Token(kind, self.ch)
             self.ch = self.next_char()
