@@ -1,3 +1,4 @@
+import string
 from enum import Enum, unique
 
 MAXLINE = 120
@@ -24,8 +25,8 @@ class KeySym(Enum):
     Minus     = "-"
     Mult      = "*"
     Div       = "/"
-    LParen    = "("
-    RParen    = ")"
+    Lparen    = "("
+    Rparen    = ")"
     Equal     = "="
     Lss       = "<"
     Gtr       = ">"
@@ -34,7 +35,7 @@ class KeySym(Enum):
     GtrEq     = ">="
     Comma     = ","
     Period    = "."
-    SemiColon = ";"
+    Semicolon = ";"
     Assign    = ":="
 
 @unique
@@ -59,22 +60,69 @@ class KeyTable:
     def is_keysym(self, token):
         return token in [x.value for x in KeySym.__members__.values()]
 
+    @classmethod
+    def to_kind(self, chara):
+        if chara in string.digits:
+            return KeyEtc.Digit
+        elif chara in string.ascii_letters:
+            return KeyEtc.Letter
+        elif chara == '+':
+            return KeySym.Plus
+        elif chara == '-':
+            return KeySym.Minus
+        elif chara == '*':
+            return KeySym.Mult
+        elif chara == '/':
+            return KeySym.Div
+        elif chara == '(':
+            return KeySym.Lparen
+        elif chara == ')':
+            return KeySym.Rparen
+        elif chara == '=':
+            return KeySym.Equal
+        elif chara == '<':
+            return KeySym.Lss
+        elif chara == '>':
+            return KeySym.Gtr
+        elif chara == ',':
+            return KeySym.Comma
+        elif chara == '.':
+            return KeySym.Period
+        elif chara == ';':
+            return KeySym.Semicolon
+        elif chara == ':':
+            return KeyEtc.Colon
+        else:
+            return KeyEtc.Others
+
+    @classmethod
+    def is_space(self, chara):
+        return chara == ' ' or chara == '\t'
+
 class Token:
-    def __init__(self, kind, value):
+    def __init__(self, kind, value=None):
         self.kind = kind
         self.value = value
+
+    def __str__(self):
+        return "Token {kind=%s, value=%s}" % (self.kind, self.value)
+
+    def __repr__(self):
+        return "Token {kind=%s, value=%s}" % (self.kind, self.value)
 
 class SourceReader:
     def __init__(self, input_file):
         self.input_file = open(input_file, 'r')
         self.line = None
         self.line_index = 0
+        self.ch = None 
 
     def next_char(self):
         if self.line == None:
             self.line = self.input_file.readline().strip()
             if self.line == "":
-                return None
+                self.line = None
+                return ""
             self.line_index = 0
 
         c = self.line[self.line_index]
@@ -82,6 +130,33 @@ class SourceReader:
         if self.line_index >= len(self.line):
             self.line = None
         return c
+
+    def next_token(self):
+        while self.ch == None or KeyTable.is_space(self.ch):
+            self.ch = self.next_char()
+        if self.ch == "":
+            return Token(KeyEtc.Others)
+
+        kind = KeyTable.to_kind(self.ch)
+        if kind == KeyEtc.Letter:
+            token = Token(kind, self.ch)
+            self.ch = self.next_char()
+        elif kind == KeyEtc.Digit:
+            token = Token(kind, self.ch)
+            self.ch = self.next_char()
+        elif kind == KeyEtc.Colon:
+            token = Token(kind, self.ch)
+            self.ch = self.next_char()
+        elif kind == KeySym.Lss:
+            token = Token(kind, self.ch)
+            self.ch = self.next_char()
+        elif kind == KeySym.Gtr:
+            token = Token(kind, self.ch)
+            self.ch = self.next_char()
+        else:
+            token = Token(kind)
+            self.ch = self.next_char()
+        return token
 
     def close(self):
         self.input_file.close()
