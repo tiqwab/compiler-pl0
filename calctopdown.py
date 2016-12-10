@@ -87,12 +87,21 @@ class TopDownParser:
         self.elem = None
 
     def next_elem(self):
-        if len(self.elems) == 0:
+        '''
+        Parse a next token, but just return one character.
+        '''
+        if self.empty():
             return None
         self.elem = self.elems.pop(0)
         return self.elem
 
+    def empty(self):
+        return len(self.elems) == 0
+
     def parse(self):
+        '''
+        Parse a given input to the abstract syntax tree.
+        '''
         self.next_elem()
         return self.expr1()
 
@@ -101,7 +110,7 @@ class TopDownParser:
         return self.expr2(t1)
 
     def expr2(self, t1):
-        if len(self.elems) == 0:
+        if self.empty():
             return t1
 
         if self.elem == '+':
@@ -117,7 +126,7 @@ class TopDownParser:
         return self.term2(f1)
 
     def term2(self, f1):
-        if len(self.elems) == 0:
+        if self.empty():
             return f1
 
         if self.elem == '*':
