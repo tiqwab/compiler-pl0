@@ -118,6 +118,11 @@ class TopDownParser:
             t2 = self.term1()
             toe = TwoOpExpr(plus, t1, t2)
             return self.expr2(toe)
+        elif self.elem == '-':
+            self.next_elem()
+            t2 = self.term1()
+            toe = TwoOpExpr(minus, t1, t2)
+            return self.expr2(toe)
         else:
             return t1
 
@@ -133,6 +138,11 @@ class TopDownParser:
             self.next_elem()
             f2 = self.factor()
             toe = TwoOpExpr(mul, f1, f2)
+            return self.term2(toe)
+        elif self.elem == '/':
+            self.next_elem()
+            f2 = self.factor()
+            toe = TwoOpExpr(div, f1, f2)
             return self.term2(toe)
         else:
             return f1
@@ -171,3 +181,4 @@ if __name__ == '__main__':
     calc_helper('1 + 2 * 3')
     calc_helper('( 1 + 2 ) * 3')
     calc_helper('( 2 + 5 * 3 ) * ( 1 + 4 * 2 ) + 8')
+    calc_helper('( 2 - 5 * 3 ) + ( 4 * 3 / 2 - 1 ) * 2')
