@@ -91,6 +91,7 @@ class TopDownParser:
         Parse a next token, but just return one character.
         '''
         if self.empty():
+            self.elem = None
             return None
         self.elem = self.elems.pop(0)
         return self.elem
@@ -123,8 +124,10 @@ class TopDownParser:
             t2 = self.term1()
             toe = TwoOpExpr(minus, t1, t2)
             return self.expr2(toe)
-        else:
+        elif self.elem == ')':
             return t1
+        else:
+            raise RuntimeError("unexpected character: " + self.elem)
 
     def term1(self):
         f1 = self.factor()
@@ -144,8 +147,10 @@ class TopDownParser:
             f2 = self.factor()
             toe = TwoOpExpr(div, f1, f2)
             return self.term2(toe)
-        else:
+        elif self.elem in ['+', '-', ')']:
             return f1
+        else:
+            raise RuntimeError("unexpected character: " + self.elem)
 
     def factor(self):
         if self.elem == '(':
