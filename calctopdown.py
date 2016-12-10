@@ -77,6 +77,14 @@ class TwoOpExpr(Expr):
 
 '''
 Construct the abstract syntax tree
+
+E  -> TE'
+E' -> +TE' | -TE' | e
+T  -> FT'
+T' -> *FT' | /FT' | e
+F  -> (E) | N
+N  -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+('e' means empty)
 '''
 class TopDownParser:
     def __init__(self, expression):
@@ -114,17 +122,17 @@ class TopDownParser:
         if self.empty():
             return t1
 
-        if self.elem == '+':
+        if self.elem == '+': # First
             self.next_elem()
             t2 = self.term1()
             toe = TwoOpExpr(plus, t1, t2)
             return self.expr2(toe)
-        elif self.elem == '-':
+        elif self.elem == '-': # First
             self.next_elem()
             t2 = self.term1()
             toe = TwoOpExpr(minus, t1, t2)
             return self.expr2(toe)
-        elif self.elem == ')':
+        elif self.elem == ')': # Follow
             return t1
         else:
             raise RuntimeError("unexpected character: " + self.elem)
@@ -137,17 +145,17 @@ class TopDownParser:
         if self.empty():
             return f1
 
-        if self.elem == '*':
+        if self.elem == '*': # First
             self.next_elem()
             f2 = self.factor()
             toe = TwoOpExpr(mul, f1, f2)
             return self.term2(toe)
-        elif self.elem == '/':
+        elif self.elem == '/': # First
             self.next_elem()
             f2 = self.factor()
             toe = TwoOpExpr(div, f1, f2)
             return self.term2(toe)
-        elif self.elem in ['+', '-', ')']:
+        elif self.elem in ['+', '-', ')']: # Follow
             return f1
         else:
             raise RuntimeError("unexpected character: " + self.elem)
