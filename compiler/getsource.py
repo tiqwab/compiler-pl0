@@ -129,6 +129,9 @@ class SourceReader:
         self.ch = None 
 
     def next_char(self):
+        '''
+        Read a character from the input file.
+        '''
         if self.line == None:
             self.line = self.input_file.readline()
             if self.line == "":
@@ -143,6 +146,9 @@ class SourceReader:
         return c
 
     def next_token(self):
+        '''
+        Read a token from the input file
+        '''
         # first reading or spaces
         while self.ch == None or KeyTable.is_space(self.ch):
             self.ch = self.next_char()
