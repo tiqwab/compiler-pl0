@@ -35,7 +35,7 @@ def op_to_name(func):
         raise RuntimeError("illegal function")
 
 '''
-Classes to construct the abstract syntax tree of basic math expression such as '(3 + 5) * 10'
+Classes to express the abstract syntax tree of basic math expression such as '(3 + 5) * 10'
 '''
 
 class Expr:
@@ -76,12 +76,10 @@ class TwoOpExpr(Expr):
         return "TwoOpExpr {op=%s, left=%s, right=%s}" % (repr(op_to_name(self.op)), repr(self.left), repr(self.right))
 
 '''
-Construct the abstract syntax tree
+Construct the abstract syntax tree(use 'while')
 
-E  -> TE'
-E' -> +TE' | -TE' | e
-T  -> FT'
-T' -> *FT' | /FT' | e
+E  -> T {(+T| -T)}
+T  -> F {(*F| /F)}
 F  -> (E) | N
 N  -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 ('e' means empty)
@@ -90,94 +88,73 @@ class TopDownParser:
     def __init__(self, expression):
         assert expression is not None
 
-        self.elems = expression.split(' ')
-        assert len(self.elems) > 0
-        self.elem = None
+        self.tokens = expression.split(' ')
+        assert len(self.tokens) > 0
+        self.token = None
 
-    def next_elem(self):
+    def next_token(self):
         '''
         Parse a next token, but just return one character.
         '''
         if self.empty():
-            self.elem = None
+            self.token = None
             return None
-        self.elem = self.elems.pop(0)
-        return self.elem
+        self.token = self.tokens.pop(0)
+        return self.token
 
     def empty(self):
-        return len(self.elems) == 0
+        return len(self.tokens) == 0
 
     def parse(self):
         '''
         Parse a given input to the abstract syntax tree.
         '''
-        self.next_elem()
-        return self.expr1()
+        self.next_token()
+        return self.expr()
 
-    def expr1(self):
-        t1 = self.term1()
-        return self.expr2(t1)
+    def expr(self):
+        acc = self.term()
+        while self.token in ['+', '-']:
+            op = self.token
+            self.next_token()
+            second = self.term()
+            if op == '+':
+                acc = TwoOpExpr(plus, acc, second)
+            else:
+                acc = TwoOpExpr(minus, acc, second)
+        return acc
 
-    def expr2(self, t1):
-        if self.empty():
-            return t1
-
-        if self.elem == '+': # First
-            self.next_elem()
-            t2 = self.term1()
-            toe = TwoOpExpr(plus, t1, t2)
-            return self.expr2(toe)
-        elif self.elem == '-': # First
-            self.next_elem()
-            t2 = self.term1()
-            toe = TwoOpExpr(minus, t1, t2)
-            return self.expr2(toe)
-        elif self.elem == ')': # Follow
-            return t1
-        else:
-            raise RuntimeError("unexpected character: " + self.elem)
-
-    def term1(self):
-        f1 = self.factor()
-        return self.term2(f1)
-
-    def term2(self, f1):
-        if self.empty():
-            return f1
-
-        if self.elem == '*': # First
-            self.next_elem()
-            f2 = self.factor()
-            toe = TwoOpExpr(mul, f1, f2)
-            return self.term2(toe)
-        elif self.elem == '/': # First
-            self.next_elem()
-            f2 = self.factor()
-            toe = TwoOpExpr(div, f1, f2)
-            return self.term2(toe)
-        elif self.elem in ['+', '-', ')']: # Follow
-            return f1
-        else:
-            raise RuntimeError("unexpected character: " + self.elem)
+    def term(self):
+        acc = self.factor()
+        while self.token in ['*', '/']:
+            op = self.token
+            self.next_token()
+            second = self.factor()
+            if op == '*':
+                acc = TwoOpExpr(mul, acc, second)
+            else:
+                acc = TwoOpExpr(div, acc, second)
+        return acc
 
     def factor(self):
-        if self.elem == '(':
-            self.next_elem()
-            e1 = self.expr1()
-            self.next_elem()
-            return e1
-        elif self.is_digit(self.elem):
-            n = NumExpr(int(self.elem))
-            self.next_elem()
+        if self.token == '(':
+            self.next_token()
+            e = self.expr()
+            self.next_token() # for ')'
+            return e
+        elif self.is_digit(self.token):
+            n = NumExpr(int(self.token))
+            self.next_token()
             return n
         else:
-            raise RuntimeError("unexpected character: " + self.elem)
+            raise RuntimeError("unexpected character: " + self.token)
 
     def is_digit(self, v):
         return v in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 
 '''
-main program
+Main program.
+Parse and calculate basic math expressions.
 '''
 
 def calc_helper(inp):
