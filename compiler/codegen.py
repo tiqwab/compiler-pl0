@@ -19,7 +19,7 @@ class Pl0CodeGenerator:
     def gencode_v(self, op, v):
         pass
 
-    def gencode_r():
+    def gencode_r(self):
         pass
 
     def backpatch(self, backp):

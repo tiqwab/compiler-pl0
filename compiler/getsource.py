@@ -110,6 +110,10 @@ class KeyTable:
     def is_space(self, chara):
         return chara == ' ' or chara == '\t'
 
+    @classmethod
+    def is_newline(self, chara):
+        return chara == '\n'
+
 class Token:
     def __init__(self, kind, value=None):
         self.kind = kind
@@ -150,7 +154,9 @@ class SourceReader:
         Read a token from the input file
         '''
         # first reading or spaces
-        while self.ch == None or KeyTable.is_space(self.ch):
+        while self.ch == None \
+            or KeyTable.is_space(self.ch) \
+            or KeyTable.is_newline(self.ch):
             self.ch = self.next_char()
 
         kind = KeyTable.to_kind(self.ch)

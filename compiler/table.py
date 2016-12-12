@@ -20,11 +20,11 @@ class Pl0Table:
     def enter_const(self, id_, v):
         pass
 
-    def endpar(self):
+    def end_par(self):
         pass
 
-    def change_v(ti, new_val):
+    def change_v(self, ti, new_val):
         pass
 
-    def table_l(self):
+    def frame_l(self):
         pass
