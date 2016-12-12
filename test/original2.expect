@@ -1,0 +1,60 @@
+function
+id multiply
+( (
+id x
+, ,
+id y
+) )
+var
+id a
+, ,
+id b
+, ,
+id c
+; ;
+begin
+id a
+:=
+id x
+; ;
+id b
+:=
+id y
+; ;
+id c
+:=
+num 0
+; ;
+while
+id b
+>
+num 0
+do
+begin
+if
+odd
+id b
+then
+id c
+:=
+id c
++ +
+id a
+; ;
+id a
+:=
+num 2
+* *
+id a
+; ;
+id b
+:=
+id b
+/ /
+num 2
+end
+; ;
+return
+id c
+end
+; ;

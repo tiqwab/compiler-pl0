@@ -64,6 +64,20 @@ class KeyTable:
         return None
 
     @classmethod
+    def to_keysym(self, token):
+        for x in KeySym:
+            if x.value == token:
+                return x
+        return None
+
+    @classmethod
+    def to_keytoken(self, token):
+        for x in KeyToken:
+            if x.value == token:
+                return x
+        return None
+
+    @classmethod
     def is_keysym(self, token):
         return token in [x.value for x in KeySym.__members__.values()]
 
@@ -118,6 +132,15 @@ class Token:
     def __init__(self, kind, value=None):
         self.kind = kind
         self.value = value
+
+    def __eq__(self, other):
+        if not isinstance(other, Token):
+            return False
+        if self.kind != other.kind:
+            return False
+        if self.value != other.value:
+            return False
+        return True
 
     def __str__(self):
         return "Token {kind=%s, value=%s}" % (self.kind, repr(self.value))
