@@ -1,3 +1,12 @@
+from enum import Enum, unique
+
+@unique
+class IdKind(Enum):
+    Var = 1
+    Func = 2
+    Par = 3
+    Const = 4
+
 class Pl0Table:
     def __init__(self):
         pass
@@ -27,4 +36,10 @@ class Pl0Table:
         pass
 
     def frame_l(self):
+        pass
+
+    def search(self, id_, k):
+        pass
+
+    def kind(self, i):
         pass

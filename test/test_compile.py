@@ -1,7 +1,7 @@
 from unittest import TestCase, main
 from unittest.mock import Mock, ANY, call
 from compiler.getsource import SourceReader
-from compiler.table import Pl0Table
+from compiler.table import IdKind, Pl0Table
 from compiler.codegen import OpCode, Pl0CodeGenerator
 from compiler.compile import Pl0Compiler
 
@@ -15,9 +15,9 @@ class TestCompile(TestCase):
         self.gen = Mock(spec=Pl0CodeGenerator)
         self.sut = Pl0Compiler(self.reader, self.table, self.gen)
 
-    def test_compile(self):
+    def test_compile_decl(self):
         # Setup
-        self.setUpReader('test/original3.pl')
+        self.setUpReader('test/original3-1.pl')
         # Execute
         self.sut.compile()
         # Assert the call of table to check the insertion of declaration
@@ -32,6 +32,17 @@ class TestCompile(TestCase):
         self.assertEqual(self.gen.gencode_v.call_count, 6)
         self.gen.gencode_v.assert_has_calls(expected_gencode_v)
         self.assertEqual(self.gen.gencode_r.call_count, 3)
+
+
+    def test_compile_if(self):
+        # Setup
+        self.setUpReader('test/original3-2.pl')
+        self.table.kind.return_value = IdKind.Var
+        # Execute
+        self.sut.compile()
+
+        print(self.table.mock_calls)
+        print(self.gen.mock_calls)
 
     def tearDown(self):
         self.sut.reader.close()

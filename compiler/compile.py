@@ -1,5 +1,6 @@
 from compiler.getsource import KeyWd, KeySym, KeyToken, Token, SourceReader
-from compiler.codegen import OpCode
+from compiler.codegen import OpCode, Operator
+from compiler.table import IdKind
 
 FIRSTADDR = 2
 
@@ -107,4 +108,80 @@ class Pl0Compiler:
         self.check_get(self.token, KeySym.Semicolon)
 
     def statement(self):
-        pass
+        while True:
+            if self.token.kind == KeyToken.Id:
+                t_index = self.table.search(self.token.value, IdKind.Var)
+                k = self.table.kind(t_index)
+                if k != IdKind.Var and k != IdKind.Par:
+                    raise RuntimeError("unexpected id: " + str(k))
+                self.check_get(self.next_token(), KeySym.Assign)
+                self.expression()
+                self.gen.gencode_t(OpCode.sto, t_index)
+                return
+            elif self.token.kind == KeyWd.If:
+                self.next_token()
+                self.condition()
+                self.check_get(self.token, KeyWd.Then)
+                back_p = self.gen.gencode_v(OpCode.jpc, 0)
+                self.statement()
+                self.gen.backpatch(back_p)
+                return
+            elif self.token.kind == KeyWd.Ret:
+                self.next_token()
+                return
+            elif self.token.kind == KeyWd.Begin:
+                self.next_token()
+                return
+            elif self.token.kind == KeyWd.While:
+                self.next_token()
+                return
+            elif self.token.kind == KeyWd.Write:
+                self.next_token()
+                return
+            elif self.token.kind == KeyWd.WriteLn:
+                self.next_token()
+                return
+            elif self.token.kind == KeyWd.End:
+                self.next_token()
+                return
+            elif self.token.kind == KeySym.Semicolon:
+                self.next_token()
+                return
+            elif self.token.kind == KeySym.Period:
+                self.next_token()
+                return
+            else:
+                raise RuntimeError("unexpected token: " + str(self.token))
+
+    def expression(self):
+        self.next_token() 
+
+    def code_o(self, op):
+        '''
+        just for `condition` method
+        '''
+        self.next_token()
+        self.expression()
+        self.gen.gencode_o(op)
+
+    def condition(self):
+        if self.token.kind == KeyWd.Odd:
+            self.code_o(Operator.odd)
+            return
+
+        self.expression()
+        kind = self.token.kind
+        if kind == KeySym.Equal:
+            self.code_o(Operator.eq)
+        elif kind == KeySym.Lss:
+            self.code_o(Operator.ls)
+        elif kind == KeySym.Gtr:
+            self.code_o(Operator.gr)
+        elif kind == KeySym.NotEq:
+            self.code_o(Operator.neq)
+        elif kind == KeySym.LssEq:
+            self.code_o(Operator.lseq)
+        elif kind == KeySym.GtrEq:
+            self.code_o(Operator.greq)
+        else:
+            raise RuntimeError("unexpected token: " + str(token))
