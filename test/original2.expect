@@ -1,60 +1,60 @@
-function
-id multiply
-( (
-id x
-, ,
-id y
-) )
-var
-id a
-, ,
-id b
-, ,
-id c
-; ;
-begin
-id a
-:=
-id x
-; ;
-id b
-:=
-id y
-; ;
-id c
-:=
-num 0
-; ;
-while
-id b
->
-num 0
-do
-begin
-if
-odd
-id b
-then
-id c
-:=
-id c
-+ +
-id a
-; ;
-id a
-:=
-num 2
-* *
-id a
-; ;
-id b
-:=
-id b
-/ /
-num 2
-end
-; ;
-return
-id c
-end
-; ;
+Func
+Id multiply
+Lparen (
+Id x
+Comma ,
+Id y
+Rparen )
+Var
+Id a
+Comma ,
+Id b
+Comma ,
+Id c
+Semicolon ;
+Begin
+Id a
+Assign
+Id x
+Semicolon ;
+Id b
+Assign
+Id y
+Semicolon ;
+Id c
+Assign
+Num 0
+Semicolon ;
+While
+Id b
+Gtr
+Num 0
+Do
+Begin
+If
+Odd
+Id b
+Then
+Id c
+Assign
+Id c
+Plus +
+Id a
+Semicolon ;
+Id a
+Assign
+Num 2
+Mult *
+Id a
+Semicolon ;
+Id b
+Assign
+Id b
+Div /
+Num 2
+End
+Semicolon ;
+Ret
+Id c
+End
+Semicolon ;

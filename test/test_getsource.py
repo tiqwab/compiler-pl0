@@ -1,7 +1,7 @@
 import unittest
 import string
 import sys
-from compiler.getsource import KeyEtc, KeyTable, Token, SourceReader
+from compiler.getsource import KeyWd, KeySym, KeyToken, KeyEtc, KeyTable, Token, SourceReader
 
 '''
 Execute `python setup.py test` to test all cases
@@ -25,12 +25,16 @@ class TestGetSource(unittest.TestCase):
         self.assertEqual(''.join(result), "one\ntwo\nthree four\n")
 
     def to_any_kind(self, k):
-        kind = KeyTable.to_keywd(k)
-        if kind is None:
-            kind = KeyTable.to_keysym(k)
-        if kind is None:
-            kind = KeyTable.to_keytoken(k)
-        return kind
+        for x in KeyWd:
+            if k == x.name:
+                return x
+        for x in KeySym:
+            if k == x.name:
+                return x
+        for x in KeyToken:
+            if k == x.name:
+                return x
+        return None
 
     def test_next_token(self):
         sut = SourceReader('test/original2.pl')
