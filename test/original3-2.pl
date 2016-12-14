@@ -5,4 +5,11 @@ begin
   if dummy4 <> 0 then dummy4 := 10;
   if dummy5 <= 0 then dummy5 := 10;
   if dummy6 >= 0 then dummy6 := 10;
+
+  while dummy7 > 0 do
+  begin
+    dummy7 := 10;
+  end;
+
+  return 5;
 end.

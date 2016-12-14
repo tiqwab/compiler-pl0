@@ -128,6 +128,8 @@ class Pl0Compiler:
                 return
             elif self.token.kind == KeyWd.Ret:
                 self.next_token()
+                self.expression()
+                self.gen.gencode_r()
                 return
             elif self.token.kind == KeyWd.Begin:
                 self.next_token()
@@ -142,6 +144,13 @@ class Pl0Compiler:
                     # raise RuntimeError("unexpected token: " + str(self.token))
             elif self.token.kind == KeyWd.While:
                 self.next_token()
+                backp2 = self.gen.next_code()
+                self.condition()
+                self.check_get(self.token, KeyWd.Do)
+                backp = self.gen.gencode_v(OpCode.jpc, 0)
+                self.statement()
+                self.gen.gencode_v(OpCode.jmp, backp2)
+                self.gen.backpatch(backp)
                 return
             elif self.token.kind == KeyWd.Write:
                 self.next_token()
