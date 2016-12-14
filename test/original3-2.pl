@@ -11,5 +11,8 @@ begin
     dummy7 := 10;
   end;
 
+  write dummy10;
+  writeln;
+
   return 5;
 end.

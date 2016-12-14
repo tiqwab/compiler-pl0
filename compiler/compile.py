@@ -154,9 +154,12 @@ class Pl0Compiler:
                 return
             elif self.token.kind == KeyWd.Write:
                 self.next_token()
+                self.expression()
+                self.gen.gencode_o(Operator.wrt)
                 return
             elif self.token.kind == KeyWd.WriteLn:
                 self.next_token()
+                self.gen.gencode_o(Operator.wrl)
                 return
             elif self.token.kind == KeyWd.End:
                 self.next_token()
