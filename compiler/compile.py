@@ -174,7 +174,80 @@ class Pl0Compiler:
                 raise RuntimeError("unexpected token: " + str(self.token))
 
     def expression(self):
-        self.next_token()
+        prev_token = self.token
+        if prev_token.kind in [KeySym.Plus, KeySym.Minus]:
+            self.next_token()
+            self.term()
+            if prev_token.kind == KeySym.Minus:
+                self.gen.gencode_o(Operator.neg)
+        else:
+            self.term()
+        prev_token = self.token
+        while prev_token.kind in [KeySym.Plus, KeySym.Minus]:
+            self.next_token()
+            self.term()
+            if prev_token.kind == KeySym.Plus:
+                self.gen.gencode_o(Operator.add)
+            else:
+                self.gen.gencode_o(Operator.sub)
+            prev_token = self.token
+
+    def term(self):
+        self.factor()
+        prev_token = self.token
+        while prev_token.kind in [KeySym.Mult, KeySym.Div]:
+            self.next_token()
+            self.factor()
+            if prev_token.kind == KeySym.Mult:
+                self.gen.gencode_o(Operator.mul)
+            else:
+                self.gen.gencode_o(Operator.div)
+            prev_token = self.token
+
+    def factor(self):
+        if self.token.kind == KeyToken.Id:
+            t_index = self.table.search(self.token.value, IdKind.Var)
+            kind = self.table.kind(t_index)
+            if kind in [IdKind.Var, IdKind.Par]:
+                self.gen.gencode_t(OpCode.lod, t_index)
+                self.next_token()
+            elif kind == IdKind.Const:
+                self.gen.gencode_v(OpCode.lit, t_index)
+                self.next_token()
+            elif kind == IdKind.Func:
+                self.next_token()
+                if self.token.kind != KeySym.Lparen:
+                    raise RuntimeError("expect Lparen, but actual is : " + str(self.token))
+
+                self.next_token()
+                if self.token.kind != KeySym.Rparen:
+                    i = 0
+                    while True:
+                        self.expression()
+                        i += 1
+                        if self.token.kind == KeySym.Comma:
+                            self.next_token()
+                        else:
+                            self.check_get(self.token, KeySym.Rparen)
+                            break
+                else:
+                    self.next_token()
+
+                if self.table.pars(t_index) != i:
+                    raise RuntimeError("expect %d pars, but actual is %d" % (self.table.pars(t_index), i))
+                self.gen.gencode_t(OpCode.cal, t_index)
+            else:
+                raise RuntimeError("unexpected IdKind: " + str(kind))
+        elif self.token.kind == KeyToken.Num:
+            self.gen.gencode_v(OpCode.lit, self.token.value)
+            self.next_token()
+        elif self.token.kind == KeySym.Lparen:
+            self.next_token()
+            self.expression()
+            self.check_get(self.token, KeySym.Rparen)
+
+        if self.token.kind in [KeyToken.Id, KeyToken.Num, KeySym.Lparen]:
+            raise RuntimeError("unexpected token: " + str(self.token))
 
     def code_o(self, op):
         '''

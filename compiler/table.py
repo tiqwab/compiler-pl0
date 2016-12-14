@@ -43,3 +43,6 @@ class Pl0Table:
 
     def kind(self, i):
         pass
+
+    def pars(self, ti):
+        pass
