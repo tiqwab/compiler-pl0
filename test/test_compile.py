@@ -67,9 +67,15 @@ class TestCompile(TestCase):
         self.gen.gencode_o.assert_has_calls(expected_gencode_o)
         self.assertEqual(self.gen.gencode_r.call_count, 2)
 
-    @skip
     def test_compile_write(self):
-        pass
+        # Setup
+        self.setUpReader('test/original3-5.pl')
+        self.table.kind.return_value = IdKind.Var
+        # Execute
+        self.sut.compile()
+        # Assert
+        self.gen.gencode_o.assert_any_call(Operator.wrt)
+        self.gen.gencode_o.assert_any_call(Operator.wrl)
 
     @skip
     def test_compile_expr(self):
