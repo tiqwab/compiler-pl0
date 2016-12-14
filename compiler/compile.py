@@ -131,7 +131,15 @@ class Pl0Compiler:
                 return
             elif self.token.kind == KeyWd.Begin:
                 self.next_token()
-                return
+                while True:
+                    self.statement()
+                    # continue reading when ';' is found, stop reading when 'end', otherwise raise error
+                    if self.token.kind == KeySym.Semicolon:
+                        self.next_token()
+                    if self.token.kind == KeyWd.End:
+                        self.next_token()
+                        return
+                    # raise RuntimeError("unexpected token: " + str(self.token))
             elif self.token.kind == KeyWd.While:
                 self.next_token()
                 return
@@ -154,7 +162,7 @@ class Pl0Compiler:
                 raise RuntimeError("unexpected token: " + str(self.token))
 
     def expression(self):
-        self.next_token() 
+        self.next_token()
 
     def code_o(self, op):
         '''
