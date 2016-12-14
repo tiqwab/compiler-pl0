@@ -2,7 +2,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock, ANY, call
 from compiler.getsource import SourceReader
 from compiler.table import IdKind, Pl0Table
-from compiler.codegen import OpCode, Pl0CodeGenerator
+from compiler.codegen import OpCode, Operator, Pl0CodeGenerator
 from compiler.compile import Pl0Compiler
 
 class TestCompile(TestCase):
@@ -41,8 +41,31 @@ class TestCompile(TestCase):
         # Execute
         self.sut.compile()
 
-        print(self.table.mock_calls)
-        print(self.gen.mock_calls)
+        # print(self.table.mock_calls)
+        # print(self.gen.mock_calls)
+
+    def test_compile_while(self):
+        # Setup
+        self.setUpReader('test/original3-3.pl')
+        self.table.kind.return_value = IdKind.Var
+        # Execute
+        self.sut.compile()
+        # Assert
+        expected_gencode_v = [ call(OpCode.jpc, ANY), ANY, call(OpCode.jmp, ANY) ]
+        self.gen.gencode_v.assert_has_calls(expected_gencode_v)
+
+    def test_compile_ret(self):
+        # Setup
+        self.setUpReader('test/original3-4.pl')
+        self.table.kind.return_value = IdKind.Var
+        # Execute
+        self.sut.compile()
+        # Assert
+        expected_gencode_v = [ call(OpCode.lit, 1), call(OpCode.lit, 2) ]
+        self.gen.gencode_v.assert_has_calls(expected_gencode_v)
+        expected_gencode_o = [ call(Operator.add) ]
+        self.gen.gencode_o.assert_has_calls(expected_gencode_o)
+        self.assertEqual(self.gen.gencode_r.call_count, 2)
 
     def tearDown(self):
         self.sut.reader.close()
