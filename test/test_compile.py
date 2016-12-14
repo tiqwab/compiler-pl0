@@ -81,9 +81,20 @@ class TestCompile(TestCase):
     def test_compile_expr(self):
         pass
 
-    @skip
     def test_compile_condition(self):
-        pass
+        # Setup
+        self.setUpReader('test/original3-6.pl')
+        self.table.kind.return_value = IdKind.Var
+        # Execute
+        self.sut.compile()
+        # Assert
+        self.gen.gencode_o.assert_any_call(Operator.odd)
+        self.gen.gencode_o.assert_any_call(Operator.eq)
+        self.gen.gencode_o.assert_any_call(Operator.ls)
+        self.gen.gencode_o.assert_any_call(Operator.gr)
+        self.gen.gencode_o.assert_any_call(Operator.neq)
+        self.gen.gencode_o.assert_any_call(Operator.lseq)
+        self.gen.gencode_o.assert_any_call(Operator.greq)
 
     def tearDown(self):
         if hasattr(self, 'sut'):
