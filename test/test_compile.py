@@ -1,4 +1,4 @@
-from unittest import TestCase, main
+from unittest import TestCase, main, skip
 from unittest.mock import Mock, ANY, call
 from compiler.getsource import SourceReader
 from compiler.table import IdKind, Pl0Table
@@ -40,9 +40,9 @@ class TestCompile(TestCase):
         self.table.kind.return_value = IdKind.Var
         # Execute
         self.sut.compile()
-
-        # print(self.table.mock_calls)
-        # print(self.gen.mock_calls)
+        # Assert
+        self.gen.gencode_v.assert_any_call(OpCode.jpc, ANY)
+        self.gen.backpatch.assert_any_call(ANY)
 
     def test_compile_while(self):
         # Setup
@@ -67,8 +67,21 @@ class TestCompile(TestCase):
         self.gen.gencode_o.assert_has_calls(expected_gencode_o)
         self.assertEqual(self.gen.gencode_r.call_count, 2)
 
+    @skip
+    def test_compile_write(self):
+        pass
+
+    @skip
+    def test_compile_expr(self):
+        pass
+
+    @skip
+    def test_compile_condition(self):
+        pass
+
     def tearDown(self):
-        self.sut.reader.close()
+        if hasattr(self, 'sut'):
+            self.sut.reader.close()
 
 if __name__ == '__main__':
     main()
