@@ -10,7 +10,7 @@ Execute `python setup.py test` to test all cases
 class TestGetSource(unittest.TestCase):
 
     def test_next_char(self):
-        sut = SourceReader('test/original1.pl')
+        sut = SourceReader('test/getsource1.pl')
         result = []
 
         try:
@@ -37,7 +37,7 @@ class TestGetSource(unittest.TestCase):
         return None
 
     def test_next_token(self):
-        sut = SourceReader('test/original2.pl')
+        sut = SourceReader('test/getsource2.pl')
         tokens = []
 
         try:
@@ -50,7 +50,7 @@ class TestGetSource(unittest.TestCase):
             sut.close()
 
         expected = []
-        with open('test/original2.expect', 'r') as f:
+        with open('test/getsource2.expect', 'r') as f:
             for line in f.readlines():
                 line = line.strip()
                 xs = line.split(' ', 1)
