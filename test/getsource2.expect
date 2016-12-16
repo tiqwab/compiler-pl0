@@ -1,0 +1,60 @@
+Func
+Id multiply
+Lparen (
+Id x
+Comma ,
+Id y
+Rparen )
+Var
+Id a
+Comma ,
+Id b
+Comma ,
+Id c
+Semicolon ;
+Begin
+Id a
+Assign
+Id x
+Semicolon ;
+Id b
+Assign
+Id y
+Semicolon ;
+Id c
+Assign
+Num 0
+Semicolon ;
+While
+Id b
+Gtr
+Num 0
+Do
+Begin
+If
+Odd
+Id b
+Then
+Id c
+Assign
+Id c
+Plus +
+Id a
+Semicolon ;
+Id a
+Assign
+Num 2
+Mult *
+Id a
+Semicolon ;
+Id b
+Assign
+Id b
+Div /
+Num 2
+End
+Semicolon ;
+Ret
+Id c
+End
+Semicolon ;
