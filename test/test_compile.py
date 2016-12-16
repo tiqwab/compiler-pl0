@@ -83,9 +83,26 @@ class TestCompile(TestCase):
         self.gen.gencode_o.assert_any_call(Operator.wrt)
         self.gen.gencode_o.assert_any_call(Operator.wrl)
 
-    @skip
-    def test_compile_expr(self):
-        pass
+    def test_compile_expr1(self):
+        # Setup
+        self.setUpReader('test/compile_expr1.pl')
+        self.table.kind.return_value = IdKind.Var
+        # Execute
+        self.sut.compile()
+        # Assert
+        expected_gencode_o = [ call(Operator.neg), call(Operator.add), call(Operator.add) ]
+        self.gen.gencode_o.assert_has_calls(expected_gencode_o)
+
+    def test_compile_expr2(self):
+        # Setup
+        self.setUpReader('test/compile_expr2.pl')
+        self.table.kind.return_value = IdKind.Var
+        # Execute
+        self.sut.compile()
+        # Assert
+        expected_gencode_o = [ call(Operator.mul), call(Operator.mul), call(Operator.add),
+                               call(Operator.div), call(Operator.add) ]
+        self.assertEqual(self.gen.gencode_o.mock_calls, expected_gencode_o)
 
     def test_compile_condition(self):
         # Setup

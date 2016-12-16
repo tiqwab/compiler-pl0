@@ -176,6 +176,7 @@ class Pl0Compiler:
     def expression(self):
         prev_token = self.token
         if prev_token.kind in [KeySym.Plus, KeySym.Minus]:
+            # for unary operators
             self.next_token()
             self.term()
             if prev_token.kind == KeySym.Minus:
