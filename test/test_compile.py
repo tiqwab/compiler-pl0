@@ -10,14 +10,20 @@ class TestCompile(TestCase):
         pass
 
     def setUpReader(self, file_name):
+        '''
+        Set up Pl0Compiler.
+        Use mocking for table and gen objects.
+        '''
         self.reader = SourceReader(file_name)
+        # `Mock` constructor ensures that the target class has methods which are actually called.
+        # If not, AttributeError is raised.
         self.table = Mock(spec=Pl0Table)
         self.gen = Mock(spec=Pl0CodeGenerator)
         self.sut = Pl0Compiler(self.reader, self.table, self.gen)
 
     def test_compile_decl(self):
         # Setup
-        self.setUpReader('test/original3-1.pl')
+        self.setUpReader('test/compile_decl.pl')
         # Execute
         self.sut.compile()
         # Assert the call of table to check the insertion of declaration
@@ -26,7 +32,7 @@ class TestCompile(TestCase):
         self.assertEqual(self.table.enter_func.call_count, 2)
         # Assert the call of gen
         # `assert_has_calls` checks whether the actual call_list contains expected one.
-        # In other words, check the appearance of call in the specified order.
+        # In other words, the assertion succeeds when the expected list is sublist of the actual one.
         expected_gencode_v = [ call(OpCode.jmp, ANY), call(OpCode.jmp, ANY), call(OpCode.ict, ANY)
                              , call(OpCode.jmp, ANY), call(OpCode.ict, ANY), call(OpCode.ict, ANY) ]
         self.assertEqual(self.gen.gencode_v.call_count, 6)
@@ -36,7 +42,7 @@ class TestCompile(TestCase):
 
     def test_compile_if(self):
         # Setup
-        self.setUpReader('test/original3-2.pl')
+        self.setUpReader('test/compile_if.pl')
         self.table.kind.return_value = IdKind.Var
         # Execute
         self.sut.compile()
@@ -46,7 +52,7 @@ class TestCompile(TestCase):
 
     def test_compile_while(self):
         # Setup
-        self.setUpReader('test/original3-3.pl')
+        self.setUpReader('test/compile_while.pl')
         self.table.kind.return_value = IdKind.Var
         # Execute
         self.sut.compile()
@@ -56,7 +62,7 @@ class TestCompile(TestCase):
 
     def test_compile_ret(self):
         # Setup
-        self.setUpReader('test/original3-4.pl')
+        self.setUpReader('test/compile_ret.pl')
         self.table.kind.return_value = IdKind.Var
         # Execute
         self.sut.compile()
@@ -69,7 +75,7 @@ class TestCompile(TestCase):
 
     def test_compile_write(self):
         # Setup
-        self.setUpReader('test/original3-5.pl')
+        self.setUpReader('test/compile_write.pl')
         self.table.kind.return_value = IdKind.Var
         # Execute
         self.sut.compile()
@@ -83,7 +89,7 @@ class TestCompile(TestCase):
 
     def test_compile_condition(self):
         # Setup
-        self.setUpReader('test/original3-6.pl')
+        self.setUpReader('test/compile_condition.pl')
         self.table.kind.return_value = IdKind.Var
         # Execute
         self.sut.compile()
