@@ -90,6 +90,7 @@ class Pl0Compiler:
 
         f_index = self.table.enter_func(self.token.value, self.gen.next_code())
         self.check_get(self.next_token(), KeySym.Lparen)
+        self.table.block_begin(FIRSTADDR)
         while True:
             if self.token.kind == KeyToken.Id:
                 self.table.enter_par(self.token.value)

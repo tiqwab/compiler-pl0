@@ -39,7 +39,6 @@ class TestCompile(TestCase):
         self.gen.gencode_v.assert_has_calls(expected_gencode_v)
         self.assertEqual(self.gen.gencode_r.call_count, 3)
 
-
     def test_compile_if(self):
         # Setup
         self.setUpReader('test/compile_if.pl')
