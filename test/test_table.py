@@ -49,6 +49,43 @@ class TestTable(TestCase):
         self.assertEqual(self.sut.table[3], VarEntry('a', RelAddr(1, 2)))
         self.assertEqual(self.sut.table[4], VarEntry('b', RelAddr(1, 3)))
 
+    def test_methods_to_get_info(self):
+        # Execute
+        self.sut.block_begin(2)
+        # var
+        self.sut.enter_var('x')
+        # const
+        self.sut.enter_const('y', 1)
+        # func
+        ti = self.sut.enter_func('foo', 10)
+        self.sut.block_begin(2)
+        self.sut.enter_par('x')
+        self.sut.end_par()
+        self.sut.enter_var('a')
+        self.sut.change_v(ti, 12)
+        self.sut.block_end()
+
+        # Assert
+        self.assertEqual(len(self.sut.table), 5)
+        # kind
+        self.assertEqual(self.sut.kind(0), IdKind.Var)
+        self.assertEqual(self.sut.kind(1), IdKind.Const)
+        self.assertEqual(self.sut.kind(2), IdKind.Func)
+        # reladdr
+        self.assertEqual(self.sut.reladdr(0), RelAddr(0, 2))
+        # pars
+        self.assertEqual(self.sut.pars(2), 1)
+        # search
+        self.assertEqual(self.sut.search('y', IdKind.Const), 1)
+        self.assertEqual(self.sut.search('foo', IdKind.Func), 2)
+        self.assertEqual(self.sut.search('nothing', IdKind.Func), -1)
+        original_ti = self.sut.t_index
+        self.sut.t_index = 1
+        self.assertEqual(self.sut.search('x', IdKind.Var), 0)
+        self.sut.t_index = 4
+        self.assertEqual(self.sut.search('x', IdKind.Par), 3)
+        self.sut.t_index = original_ti
+
     def tearDown(self):
         pass
 

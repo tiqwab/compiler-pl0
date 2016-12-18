@@ -108,7 +108,7 @@ class Pl0Table:
         if len(self.table) == self.t_index:
             self.table.append(entry)
         elif len(self.table) > self.t_index:
-            self.table[t_index] = entry
+            self.table[self.t_index] = entry
         else:
             raise RuntimeError("illegal index: " + self.t_index)
 
@@ -171,13 +171,13 @@ class Pl0Table:
         entry.raddr.addr = new_addr
 
     def search(self, id_, k):
-        i = self.t_index
-        for i in range(i, -1, -1):
+        l = self.t_index
+        for i in range(l, -1, -1):
             if id_ == self.table[i].name:
                 return i
-        if k == IdKind.Var:
-            return self.enter_var(id_)
-        return 0
+        # if k == IdKind.Var:
+        #     return self.enter_var(id_)
+        return -1
 
     def kind(self, i):
         return self.table[i].kind
