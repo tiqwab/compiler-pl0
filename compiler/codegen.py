@@ -170,20 +170,21 @@ class Pl0CodeGenerator:
             elif code.op_code == OpCode.sto:
                 assert isinstance(code, RefInst)
                 top -= 1
-                stack[code.raddr.level + code.raddr.addr] = stack[top]
+                stack[display[code.raddr.level] + code.raddr.addr] = stack[top]
             elif code.op_code == OpCode.cal:
                 assert isinstance(code, RefInst)
                 lev = code.raddr.level + 1
                 stack[top] = display[lev]
-                stack[top+1] = pc
+                stack[top+1] = pc # save pc temporarily
                 display[lev] = top
                 pc = code.raddr.addr
             elif code.op_code == OpCode.ret:
                 assert isinstance(code, RetInst)
                 top -= 1
                 temp = stack[top]
+                top = display[code.raddr.level]
                 display[code.raddr.level] = stack[top]
-                pc = stack[top+1]
+                pc = stack[top+1] # recover pc
                 top -= code.raddr.addr
                 stack[top] = temp
                 top += 1
@@ -265,9 +266,8 @@ class Pl0CodeGenerator:
             sys.stdout.flush()
             return (top-1)
         elif code.op == Operator.wrl:
-            sys.stdout.write(str(stack[top-1]))
             sys.stdout.write('\n')
             sys.stdout.flush()
-            return (top-1)
+            return top
         else:
             raise RuntimeError("illegal op: " + str(code.op))

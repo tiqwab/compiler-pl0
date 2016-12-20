@@ -1,4 +1,8 @@
+import itertools
 from enum import Enum, unique
+
+MAX_TABLE = 100
+MAX_LEVEL = 5
 
 @unique
 class IdKind(Enum):
@@ -95,13 +99,14 @@ class ConstEntry(Entry):
 
 class Pl0Table:
     def __init__(self):
-        self.table = []
+        self.table = [x for x in itertools.repeat(None, MAX_TABLE)]
+        self.table[0] = FuncEntry('dummy', RelAddr(0, 0))
         self.t_index = None
-        self.level = None
+        self.level = None 
         self.local_addr = None
         self.tf_index = None
-        self.index = []
-        self.addr = []
+        self.index = [x for x in itertools.repeat(0, MAX_LEVEL)]
+        self.addr = [x for x in itertools.repeat(0, MAX_LEVEL)]
 
     def enter(self, entry):
         self.t_index += 1
@@ -110,18 +115,18 @@ class Pl0Table:
         elif len(self.table) > self.t_index:
             self.table[self.t_index] = entry
         else:
-            raise RuntimeError("illegal index: " + self.t_index)
+            raise RuntimeError("illegal index: " + str(self.t_index))
 
     def block_begin(self, first_addr):
         if self.level is None:
             self.local_addr = first_addr
-            self.t_index = -1
+            self.t_index = 0
             self.level = 0
         else:
-            # self.index[self.level] = self.t_index
-            # self.addr[self.level] = self.local_addr
-            self.index.append(self.t_index)
-            self.addr.append(self.local_addr)
+            self.index[self.level] = self.t_index
+            self.addr[self.level] = self.local_addr
+            # self.index.append(self.t_index)
+            # self.addr.append(self.local_addr)
             self.local_addr = first_addr
             self.level += 1
 
@@ -136,7 +141,7 @@ class Pl0Table:
 
     def f_pars(self):
         entry = self.table[self.index[self.level-1]]
-        assert isinstance(entry, FuncEntry) == True
+        assert isinstance(entry, FuncEntry)
         return entry.pars
 
     def enter_func(self, id_, addr):
@@ -160,14 +165,14 @@ class Pl0Table:
 
     def end_par(self):
         entry = self.table[self.tf_index]
-        assert isinstance(entry, FuncEntry) == True
+        assert isinstance(entry, FuncEntry)
         pars = entry.pars
         for i in range(0, pars):
             self.table[self.tf_index+i+1].raddr.addr = i-pars
 
     def change_v(self, ti, new_addr):
         entry = self.table[ti]
-        assert isinstance(entry, FuncEntry) == True
+        assert isinstance(entry, FuncEntry)
         entry.raddr.addr = new_addr
 
     def search(self, id_, k):
@@ -177,26 +182,26 @@ class Pl0Table:
                 return i
         # if k == IdKind.Var:
         #     return self.enter_var(id_)
-        return -1
+        raise RuntimeError("unknown var or function: " + id_)
 
     def kind(self, i):
         return self.table[i].kind
 
     def reladdr(self, ti):
         entry = self.table[ti]
-        assert isinstance(entry, VarEntry) == True \
-                or isinstance(entry, FuncEntry) == True \
-                or isinstance(entry, ParEntry) == True
+        assert isinstance(entry, VarEntry) \
+                or isinstance(entry, FuncEntry) \
+                or isinstance(entry, ParEntry)
         return entry.raddr
 
     def val(self, ti):
         entry = self.table[ti]
-        assert isinstance(entry, ConstEntry) == True
+        assert isinstance(entry, ConstEntry)
         return entry.value
 
     def pars(self, ti):
         entry = self.table[ti]
-        assert isinstance(entry, FuncEntry) == True
+        assert isinstance(entry, FuncEntry)
         return entry.pars
 
     def frame_l(self):

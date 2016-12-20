@@ -214,7 +214,7 @@ class Pl0Compiler:
                 self.gen.gencode_t(OpCode.lod, t_index)
                 self.next_token()
             elif kind == IdKind.Const:
-                self.gen.gencode_v(OpCode.lit, t_index)
+                self.gen.gencode_v(OpCode.lit, self.table.val(t_index))
                 self.next_token()
             elif kind == IdKind.Func:
                 self.next_token()
