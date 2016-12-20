@@ -222,8 +222,8 @@ class Pl0Compiler:
                     raise RuntimeError("expect Lparen, but actual is : " + str(self.token))
 
                 self.next_token()
+                i = 0
                 if self.token.kind != KeySym.Rparen:
-                    i = 0
                     while True:
                         self.expression()
                         i += 1
