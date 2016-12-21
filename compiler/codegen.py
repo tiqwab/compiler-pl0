@@ -217,10 +217,10 @@ class Pl0CodeGenerator:
             stack[top-2] -= stack[top-1]
             return (top-1)
         elif code.op == Operator.mul:
-            stack[top-2] *= stack[top-1]
+            stack[top-2] = int(stack[top-2] * stack[top-1])
             return (top-1)
         elif code.op == Operator.div:
-            stack[top-2] /= stack[top-1]
+            stack[top-2] = int(stack[top-2] / stack[top-1])
             return (top-1)
         elif code.op == Operator.odd:
             stack[top-1] = stack[top-1] % 2

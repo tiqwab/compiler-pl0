@@ -18,5 +18,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         file_name = sys.argv[1]
     else:
-        file_name = 'sample.pl'
+        file_name = 'resources/sample1.pl'
     main(file_name)
