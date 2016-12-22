@@ -5,12 +5,9 @@ begin a := x; b := y;
 end;
 
 const m = 7, n = 8;
-var x,y;
+var x;
 
 begin
-  write m;
-  write n;
-  writeln;
   write plus(m, n);
   writeln;
 end.

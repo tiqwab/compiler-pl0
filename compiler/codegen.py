@@ -152,8 +152,8 @@ class Pl0CodeGenerator:
 
     def execute(self):
         stack = [x for x in itertools.repeat(0, MAX_STACK)]
-        display = [x for x in itertools.repeat(0, MAX_LEVEL)]
-        pc = top = lev = temp = 0
+        display = [x for x in itertools.repeat(0, MAX_LEVEL)] # store `top` of each level when functions are called
+        pc = top = 0
 
         while True:
             code = self.codes[pc]
@@ -173,19 +173,24 @@ class Pl0CodeGenerator:
                 stack[display[code.raddr.level] + code.raddr.addr] = stack[top]
             elif code.op_code == OpCode.cal:
                 assert isinstance(code, RefInst)
-                lev = code.raddr.level + 1
-                stack[top] = display[lev]
+                # `code.raddr.level` means the level of the name of called function
+                # `code.raddr.addr` means the start index of called function
+                lev = code.raddr.level + 1 # level of the inside of function is one greater than the name of function
+                stack[top] = display[lev] # save display temporarily
                 stack[top+1] = pc # save pc temporarily
-                display[lev] = top
+                display[lev] = top # save top temporarily
                 pc = code.raddr.addr
+                # `OpCode.cal` should be followed by `OpCode.ict` which increases `top`.
             elif code.op_code == OpCode.ret:
                 assert isinstance(code, RetInst)
+                # `code.raddr.level` means the level of the inside of called function
+                # `code.raddr.addr` means the num of arguments of function
                 top -= 1
-                temp = stack[top]
-                top = display[code.raddr.level]
-                display[code.raddr.level] = stack[top]
+                temp = stack[top] # return value of function
+                top = display[code.raddr.level] # recover top
+                display[code.raddr.level] = stack[top] # recover display
                 pc = stack[top+1] # recover pc
-                top -= code.raddr.addr
+                top -= code.raddr.addr # decreate stack for the number of arguments of function
                 stack[top] = temp
                 top += 1
             elif code.op_code == OpCode.ict:

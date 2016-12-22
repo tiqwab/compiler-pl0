@@ -11,7 +11,9 @@ def main(file_name):
     compiler = Pl0Compiler(reader, table, gen)
     compiler.compile()
     print(table.table)
-    print(gen.codes)
+    # Format and print codes
+    for col, code in zip(range(0, len(gen.codes)), gen.codes):
+        print("%d: %s" % (col, code))
     gen.execute()
 
 if __name__ == '__main__':
