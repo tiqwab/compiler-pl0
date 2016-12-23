@@ -1,20 +1,28 @@
 from compiler.getsource import KeyWd, KeySym, KeyToken, Token, SourceReader
-from compiler.codegen import OpCode, Operator
-from compiler.table import IdKind
+from compiler.codegen import OpCode, Operator, Pl0CodeGenerator
+from compiler.table import IdKind, Pl0Table
 
-FIRSTADDR = 2
+# First relative address of each block.
+# 'Two' means addresses used for temporary storage of `display` and `pc`.
+FIRSTADDR = 2 
 
 class Pl0Compiler:
     '''
     Analyze syntax and translate to codes for a stack machine.
     '''
     def __init__(self, reader, table, gen):
-        self.reader = reader # SourceReader
-        self.table = table # Pl0Table
-        self.gen = gen # Pl0CodeGenerator
+        assert isinstance(reader, SourceReader)
+        assert isinstance(table, Pl0Table)
+        assert isinstance(gen, Pl0CodeGenerator)
+        self.reader = reader
+        self.table = table
+        self.gen = gen
         self.token = None
 
     def next_token(self):
+        '''
+        Read a next token from a source program.
+        '''
         token = self.reader.next_token()
         self.token = token
         return token
@@ -30,11 +38,19 @@ class Pl0Compiler:
             raise RuntimeError("expect:" + kind.name + ", but actual:" + token.kind.name)
 
     def compile(self):
+        '''
+        Compile a source program.
+        This method not only parse the source but also generate target codes.
+        '''
         self.next_token()
         self.table.block_begin(FIRSTADDR)
         self.block(0) # argument 0 is dummy
 
     def block(self, p_index):
+        '''
+        Parse a block.
+        `p_index` is the index of functions or main block (0) in the table.
+        '''
         backp = self.gen.gencode_v(OpCode.jmp, 0)
         while True:
             if self.token.kind == KeyWd.Const:
@@ -48,7 +64,7 @@ class Pl0Compiler:
                 self.func_decl()
             else:
                 break
-        self.gen.backpatch(backp)
+        self.gen.backpatch(backp) # backpatch the address of jmp to function
         self.table.change_v(p_index, self.gen.next_code())
         self.gen.gencode_v(OpCode.ict, self.table.frame_l())
         self.statement()
@@ -56,6 +72,9 @@ class Pl0Compiler:
         self.table.block_end()
 
     def const_decl(self):
+        '''
+        Parse a const declaration and enter a new ConstEntry into table.
+        '''
         while True:
             if self.token.kind == KeyToken.Id:
                 temp = self.token
@@ -73,6 +92,9 @@ class Pl0Compiler:
         self.check_get(self.token, KeySym.Semicolon)
 
     def var_decl(self):
+        '''
+        Parse a var declaration and enter a new VarEntry into table.
+        '''
         while True:
             if self.token.kind == KeyToken.Id:
                 self.table.enter_var(self.token.value)
@@ -85,6 +107,9 @@ class Pl0Compiler:
         self.check_get(self.token, KeySym.Semicolon)
 
     def func_decl(self):
+        '''
+        Parse a function declaration and enter a new FuncEntry into table.
+        '''
         if self.token.kind != KeyToken.Id:
             raise RuntimeError("expected Id, but: " + self.token.kind.name)
 
