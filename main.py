@@ -9,11 +9,15 @@ def main(file_name):
     table = Pl0Table()
     gen = Pl0CodeGenerator(table)
     compiler = Pl0Compiler(reader, table, gen)
+
     compiler.compile()
-    print(table.table)
+
+    # Print symtable
+    #print(table.table)
     # Format and print codes
-    for col, code in zip(range(0, len(gen.codes)), gen.codes):
-        print("%d: %s" % (col, code))
+    #for col, code in zip(range(0, len(gen.codes)), gen.codes):
+    #    print("%d: %s" % (col, code))
+
     gen.execute()
 
 if __name__ == '__main__':
