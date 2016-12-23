@@ -138,6 +138,9 @@ class Pl0Table:
         self.addr = [x for x in itertools.repeat(0, MAX_LEVEL)]
 
     def enter(self, entry):
+        '''
+        Enter a new entry into symtable.
+        '''
         self.t_index += 1
         if len(self.table) == self.t_index:
             self.table.append(entry)
@@ -147,6 +150,9 @@ class Pl0Table:
             raise RuntimeError("illegal index: " + str(self.t_index))
 
     def block_begin(self, first_addr):
+        '''
+        Processes to be executed before parsing blocks.
+        '''
         if self.level is None:
             self.local_addr = first_addr
             self.t_index = 0
@@ -158,6 +164,9 @@ class Pl0Table:
             self.level += 1
 
     def block_end(self):
+        '''
+        Processes to be executed after parsing blocks.
+        '''
         self.level -= 1
         if self.level >= 0:
             self.t_index = self.index[self.level] # recover t_index
@@ -194,15 +203,25 @@ class Pl0Table:
         return self.t_index
 
     def enter_var(self, id_):
+        '''
+        Enter a new VarEntry.
+        '''
         self.enter(VarEntry(id_, RelAddr(self.level, self.local_addr)))
         self.local_addr += 1
         return self.t_index
 
     def enter_const(self, id_, value):
+        '''
+        Enter a new ConstEntry.
+        '''
         self.enter(ConstEntry(id_, value))
         return self.t_index
 
     def end_par(self):
+        '''
+        Called by compiler when parsing parameters of functions is finished.
+        Set the relative addr of each parameter.
+        '''
         entry = self.table[self.tf_index]
         assert isinstance(entry, FuncEntry)
         pars = entry.pars
@@ -211,11 +230,19 @@ class Pl0Table:
             self.table[self.tf_index+i+1].raddr.addr = i-pars
 
     def change_v(self, ti, new_addr):
+        '''
+        Set the actual addr of functions after parsing declarations.
+        '''
         entry = self.table[ti]
         assert isinstance(entry, FuncEntry)
         entry.raddr.addr = new_addr
 
     def search(self, id_, k):
+        '''
+        Search a entry of the symtable by name.
+        Return the index of the entry when found.
+        Raise error when not found.
+        '''
         l = self.t_index
         for i in range(l, -1, -1):
             if id_ == self.table[i].name:
@@ -225,9 +252,15 @@ class Pl0Table:
         raise RuntimeError("unknown var or function: " + id_)
 
     def kind(self, i):
+        '''
+        Return kind of the specified entry.
+        '''
         return self.table[i].kind
 
     def reladdr(self, ti):
+        '''
+        Return RelAddr of the specified entry.
+        '''
         entry = self.table[ti]
         assert isinstance(entry, VarEntry) \
                 or isinstance(entry, FuncEntry) \

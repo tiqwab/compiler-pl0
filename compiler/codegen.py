@@ -147,8 +147,8 @@ class Pl0CodeGenerator:
 
     def backpatch(self, backp):
         '''
-        Backpatch an address of jmp operation to be used to jump to functions..
-        The target code should be `ValInst(OpCode.jmp, _)`.
+        Backpatch an address of jmp operation.
+        The target code should be `ValInst(OpCode.jmp, _)` `ValInst(OpCode.jpc, _)`.
         '''
         code = self.codes[backp]
         assert isinstance(code, ValInst)
